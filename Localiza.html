@@ -9,16 +9,45 @@
             font-family: Arial, sans-serif;
             text-align: center;
             margin-top: 50px;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            color: #555;
         }
         button {
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
             margin: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
         }
         #resultado {
             margin-top: 20px;
             font-weight: bold;
+            color: #333;
+        }
+        #loading {
+            margin-top: 20px;
+            font-style: italic;
+            color: #555;
+            display: none;
+        }
+        #whatsappButton {
+            display: none;
+            background-color: #25d366;
+        }
+        #whatsappButton:hover {
+            background-color: #128c7e;
         }
     </style>
 </head>
@@ -26,18 +55,30 @@
     <h1>Compartilhar Localização</h1>
     <p>Clique no botão abaixo para compartilhar sua localização:</p>
     <button onclick="obterLocalizacao()">Compartilhar Localização</button>
+    <div id="loading">Obtendo localização...</div>
     <div id="resultado"></div>
-    <button id="whatsappButton" style="display: none;" onclick="enviarWhatsApp()">Enviar Localização via WhatsApp</button>
+    <button id="whatsappButton" onclick="enviarWhatsApp()">Enviar Localização via WhatsApp</button>
 
     <script>
         let latitude, longitude;
 
         function obterLocalizacao() {
+            // Mostra o ícone de carregamento
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('resultado').innerHTML = '';
+            document.getElementById('whatsappButton').style.display = 'none';
+
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     function (posicao) {
+                        // Esconde o ícone de carregamento
+                        document.getElementById('loading').style.display = 'none';
+
+                        // Obtém a latitude e longitude
                         latitude = posicao.coords.latitude;
                         longitude = posicao.coords.longitude;
+
+                        // Exibe a localização obtida
                         const resultado = document.getElementById('resultado');
                         resultado.innerHTML = `Localização obtida:<br>Latitude: ${latitude}<br>Longitude: ${longitude}`;
 
@@ -45,7 +86,28 @@
                         document.getElementById('whatsappButton').style.display = 'block';
                     },
                     function (erro) {
-                        alert('Erro ao obter localização. Por favor, permita o acesso à localização.');
+                        // Esconde o ícone de carregamento
+                        document.getElementById('loading').style.display = 'none';
+
+                        // Exibe uma mensagem de erro clara
+                        const resultado = document.getElementById('resultado');
+                        let mensagemErro = 'Erro ao obter localização. ';
+
+                        switch (erro.code) {
+                            case erro.PERMISSION_DENIED:
+                                mensagemErro += 'Por favor, permita o acesso à localização no navegador e verifique se o GPS está ativado.';
+                                break;
+                            case erro.POSITION_UNAVAILABLE:
+                                mensagemErro += 'A localização não pôde ser obtida. Verifique sua conexão com a internet ou o GPS.';
+                                break;
+                            case erro.TIMEOUT:
+                                mensagemErro += 'A solicitação de localização expirou. Tente novamente.';
+                                break;
+                            default:
+                                mensagemErro += 'Ocorreu um erro desconhecido.';
+                        }
+
+                        resultado.innerHTML = mensagemErro;
                     }
                 );
             } else {
