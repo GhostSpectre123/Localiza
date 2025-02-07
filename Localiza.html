@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compartilhar Localização</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        #resultado {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Compartilhar Localização</h1>
+    <p>Clique no botão abaixo para compartilhar sua localização:</p>
+    <button onclick="obterLocalizacao()">Compartilhar Localização</button>
+    <div id="resultado"></div>
+    <button id="whatsappButton" style="display: none;" onclick="enviarWhatsApp()">Enviar Localização via WhatsApp</button>
+
+    <script>
+        let latitude, longitude;
+
+        function obterLocalizacao() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function (posicao) {
+                        latitude = posicao.coords.latitude;
+                        longitude = posicao.coords.longitude;
+                        const resultado = document.getElementById('resultado');
+                        resultado.innerHTML = `Localização obtida:<br>Latitude: ${latitude}<br>Longitude: ${longitude}`;
+
+                        // Mostra o botão do WhatsApp
+                        document.getElementById('whatsappButton').style.display = 'block';
+                    },
+                    function (erro) {
+                        alert('Erro ao obter localização. Por favor, permita o acesso à localização.');
+                    }
+                );
+            } else {
+                alert('Seu navegador não suporta geolocalização.');
+            }
+        }
+
+        function enviarWhatsApp() {
+            if (latitude && longitude) {
+                // Formata a mensagem com a localização
+                const mensagem = `Minha localização é: https://www.google.com/maps?q=${latitude},${longitude}`;
+                const linkWhatsApp = `https://wa.me/5575988152419?text=${encodeURIComponent(mensagem)}`;
+
+                // Redireciona para o WhatsApp
+                window.open(linkWhatsApp, '_blank');
+            } else {
+                alert('Localização não disponível. Clique em "Compartilhar Localização" primeiro.');
+            }
+        }
+    </script>
+</body>
+</html>
